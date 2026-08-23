@@ -3,13 +3,15 @@
 
 import asyncio
 from http import HTTPStatus
+from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock
 
 import openai
 import pytest
 import pytest_asyncio
 import requests
-from fastapi import Request
+from fastapi import FastAPI, Request
+from fastapi.testclient import TestClient
 
 from tests.utils import RemoteOpenAIServer
 from vllm.v1.engine.exceptions import EngineDeadError
@@ -220,3 +222,20 @@ async def test_health_check_engine_dead_error():
 
     # Assert that it returns 503 Service Unavailable
     assert response.status_code == 503
+
+
+def test_health_route_with_instrumentator_middleware():
+    from vllm.entrypoints.serve import register_vllm_serve_api_routers
+
+    app = FastAPI()
+    app.state.args = SimpleNamespace(
+        profiler_config=None,
+        enable_tokenizer_info_endpoint=False,
+        tokens_only=False,
+    )
+    app.state.engine_client = None
+
+    register_vllm_serve_api_routers(app)
+
+    response = TestClient(app).get("/health")
+    assert response.status_code == HTTPStatus.OK

@@ -792,7 +792,7 @@ prometheus-client==0.26.0
     #   opentelemetry-exporter-prometheus
     #   prometheus-fastapi-instrumentator
     #   ray
-prometheus-fastapi-instrumentator==7.1.0
+prometheus-fastapi-instrumentator==8.0.1
     # via
     #   -c requirements/common.txt
     #   -r requirements/test/../common.txt
